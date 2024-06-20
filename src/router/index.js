@@ -1,8 +1,9 @@
 import { createBrowserRouter } from 'react-router-dom';
 import adminRouter from './adminRouter';
+import authRouter from './authRouter';
 
 const router = createBrowserRouter(
-    [adminRouter].map((route) => {
+    [authRouter, adminRouter].map((route) => {
         return { ...route };
     }),
 );
