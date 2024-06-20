@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
     Button,
     InputAdornment,
@@ -11,11 +11,19 @@ import {
     TableRow,
     TableSortLabel,
     TableBody,
+    TablePagination,
+    IconButton,
+    Tooltip,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { Link } from 'react-router-dom';
+import useSWR from 'swr';
+import { fetcher as defaultFetcher } from '~/config/api';
+import { useDebounce } from '~/hooks';
 
-const TableHeader = ({ columns = [], onSortClick, orderBy = 'test' }) => {
+const TableHeader = ({ columns = [], onSortClick, orderBy = 'test', action }) => {
     const [order, setOrder] = useState();
 
     const handleSortClick = (id) => () => {
@@ -61,20 +69,57 @@ const TableHeader = ({ columns = [], onSortClick, orderBy = 'test' }) => {
                         </TableCell>
                     );
                 })}
+                {action && <TableCell />}
             </TableRow>
         </TableHead>
     );
 };
 
-const Table = ({ columns, items = [], searchable, buttons = [], onLoadData }) => {
+const Table = ({ columns, searchable, buttons = [], url, fetcher = defaultFetcher, onEdit, onDelete }) => {
     const hasHeader = searchable || buttons?.length > 0;
-    const [rows, setRows] = useState(items);
+    const action = Boolean(onEdit || onDelete);
+    const [total, setTotal] = useState(0);
+    const [search, setSearch] = useState();
+    const searchContent = useDebounce(search, 500);
+    const [options, setOptions] = useState({
+        page: 1,
+        limit: 10,
+        search: search,
+    });
+
+    const queryUrl = useMemo(() => {
+        const filteredParams = Object.fromEntries(Object.entries(options).filter(([key, value]) => !!value));
+        const queryString = new URLSearchParams(filteredParams).toString();
+        return `${url}?${queryString}`;
+    }, [url, options]);
+    const { data } = useSWR(queryUrl, fetcher);
+
+    const handleChangeOptions = (key, value) => {
+        setOptions((prev) => ({
+            ...prev,
+            [key]: value,
+        }));
+    };
+
+    const handleSort = (sort) => {
+        handleChangeOptions('sort', sort);
+    };
+
+    const handleSearch = (event) => {
+        const value = event.target.value;
+        if (!value.startsWith(' ')) {
+            setSearch(value);
+        }
+    };
+    useEffect(() => {
+        handleChangeOptions('search', searchContent);
+    }, [searchContent]);
 
     useEffect(() => {
-        onLoadData()
-            .then((res) => setRows(res.data.data))
-            .catch((err) => console.log(err));
-    }, []);
+        if (data) {
+            setTotal(data.total);
+        }
+    }, [data]);
 
     return (
         <Paper variant="outlined">
@@ -92,6 +137,8 @@ const Table = ({ columns, items = [], searchable, buttons = [], onLoadData }) =>
                                     ),
                                 }}
                                 placeholder="Tìm kiếm..."
+                                value={search}
+                                onChange={handleSearch}
                             />
                         )}
                     </div>
@@ -106,18 +153,51 @@ const Table = ({ columns, items = [], searchable, buttons = [], onLoadData }) =>
             )}
             <TableContainer>
                 <MuiTable>
-                    <TableHeader columns={columns} />
+                    <TableHeader columns={columns} onSortClick={handleSort} action={action} />
                     <TableBody>
-                        {rows.map((row, index) => (
+                        {data?.data.map((row, index) => (
                             <TableRow key={index}>
                                 {columns.map((col, colIndex) => (
-                                    <TableCell key={colIndex}>{row[col.id]}</TableCell>
+                                    <TableCell key={colIndex}>{col.valueGetter?.(row) || row[col.id]}</TableCell>
                                 ))}
+                                {action && (
+                                    <TableCell>
+                                        <div className="flex items-center gap-2">
+                                            {onEdit && (
+                                                <Tooltip title="Sửa">
+                                                    <IconButton size="small" onClick={(event) => onEdit(event, row)}>
+                                                        <EditOutlinedIcon />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            )}
+                                            {onDelete && (
+                                                <Tooltip title="Xoá">
+                                                    <IconButton
+                                                        size="small"
+                                                        onClick={(event) => onDelete(event, row)}
+                                                        color="error"
+                                                    >
+                                                        <DeleteOutlineIcon />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            )}
+                                        </div>
+                                    </TableCell>
+                                )}
                             </TableRow>
                         ))}
                     </TableBody>
                 </MuiTable>
             </TableContainer>
+            <TablePagination
+                rowsPerPageOptions={[1, 5, 10, 20]}
+                component="div"
+                count={total}
+                rowsPerPage={options.limit}
+                page={options.page - 1}
+                onPageChange={(_, value) => handleChangeOptions('page', value + 1)}
+                onRowsPerPageChange={(event) => handleChangeOptions('limit', event.target.value)}
+            />
         </Paper>
     );
 };

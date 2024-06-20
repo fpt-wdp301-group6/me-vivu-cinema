@@ -23,7 +23,7 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
     (res) => {
-        return res;
+        return res.data;
     },
     async (err) => {
         const { config } = err;
@@ -38,13 +38,15 @@ api.interceptors.response.use(
                     localStorage.setItem('token', res.data?.token);
                     return api(config);
                 } catch (error) {
-                    return Promise.reject(error);
+                    return Promise.reject(error.response);
                 }
             }
         }
 
-        return Promise.reject(err);
+        return Promise.reject(err.response);
     },
 );
+
+export const fetcher = (url) => api.get(url).then((res) => res);
 
 export default api;

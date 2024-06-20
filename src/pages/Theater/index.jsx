@@ -1,11 +1,10 @@
 import { Container } from '@mui/material';
-import Table from '~/components/Table';
-import api from '~/config/api';
+import { Table } from '~/components';
 
 const TheaterList = () => {
     const columns = [
-        { header: 'Tên rạp', sortable: true, id: 'name' },
-        { header: 'Mô tả', width: 400, id: 'slug' },
+        { id: 'name', header: 'Tên rạp', sortable: true },
+        { id: 'address', header: 'Địa chỉ', valueGetter: (row) => `${row.address.detail}` },
     ];
 
     const buttons = [
@@ -14,14 +13,17 @@ const TheaterList = () => {
         },
     ];
 
-    const loadData = () => {
-        return api.get('/theaters/all');
-    };
-
     return (
         <Container className="py-8">
             <h1 className="mb-4 text-3xl font-bold">Danh sách rạp chiếu phim</h1>
-            <Table columns={columns} buttons={buttons} searchable onLoadData={loadData} />
+            <Table
+                columns={columns}
+                buttons={buttons}
+                searchable
+                url="/theaters/all"
+                onEdit={() => {}}
+                onDelete={() => {}}
+            />
         </Container>
     );
 };
