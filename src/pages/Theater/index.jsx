@@ -7,6 +7,7 @@ const TheaterList = () => {
     const [openPanel, setOpenPanel] = useState(false);
     const [selectedItem, setSelectedItem] = useState();
     const formRef = useRef();
+    const tableRef = useRef();
 
     const handleOpen = (item) => {
         setSelectedItem(item);
@@ -42,10 +43,20 @@ const TheaterList = () => {
         },
     ];
 
+    const reloadTable = (isUpdated) => {
+        if (isUpdated) {
+            tableRef.current.loadCurrentPage();
+        } else {
+            tableRef.current.loadFirstPage();
+        }
+        handleClose();
+    };
+
     return (
         <Container className="py-8">
             <h1 className="mb-4 text-3xl font-bold">Danh sách rạp chiếu phim</h1>
             <Table
+                ref={tableRef}
                 columns={columns}
                 buttons={buttons}
                 searchable
@@ -59,7 +70,7 @@ const TheaterList = () => {
                 onClose={handleClose}
                 buttons={panelButtons}
             >
-                <TheaterForm ref={formRef} item={selectedItem} />
+                <TheaterForm ref={formRef} item={selectedItem} reloadTable={reloadTable} />
             </Panel>
         </Container>
     );

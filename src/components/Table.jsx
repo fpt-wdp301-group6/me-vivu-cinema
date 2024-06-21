@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from 'react';
+import { forwardRef, memo, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 import {
     Button,
     InputAdornment,
@@ -126,6 +126,11 @@ const Table = forwardRef(
             }
         }, [data]);
 
+        useEffect(() => {
+            mutate();
+            // eslint-disable-next-line react-hooks/exhaustive-deps
+        }, [options]);
+
         useImperativeHandle(ref, () => ({
             loadFirstPage: () => {
                 setOptions((prev) => ({ ...prev, page: 1 }));
@@ -214,11 +219,14 @@ const Table = forwardRef(
                     rowsPerPage={options.limit}
                     page={options.page - 1}
                     onPageChange={(_, value) => handleChangeOptions('page', value + 1)}
-                    onRowsPerPageChange={(event) => handleChangeOptions('limit', event.target.value)}
+                    onRowsPerPageChange={(event) => {
+                        handleChangeOptions('limit', event.target.value);
+                        handleChangeOptions('page', 1);
+                    }}
                 />
             </Paper>
         );
     },
 );
 
-export default Table;
+export default memo(Table);
