@@ -1,10 +1,21 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Container } from '@mui/material';
-import { Table } from '~/components';
-import Panel from '~/components/Panel';
+import { Panel, Table } from '~/components';
+import TheaterForm from './TheaterForm';
 
 const TheaterList = () => {
     const [openPanel, setOpenPanel] = useState(false);
+    const [selectedItem, setSelectedItem] = useState();
+    const formRef = useRef();
+
+    const handleOpen = (item) => {
+        setSelectedItem(item);
+        setOpenPanel(true);
+    };
+
+    const handleClose = () => {
+        setOpenPanel(false);
+    };
 
     const columns = [
         { id: 'name', header: 'Tên rạp', sortable: true },
@@ -14,7 +25,7 @@ const TheaterList = () => {
     const buttons = [
         {
             text: 'Thêm',
-            onClick: () => setOpenPanel(true),
+            onClick: () => handleOpen(),
         },
     ];
 
@@ -23,10 +34,11 @@ const TheaterList = () => {
             text: 'Hủy',
             color: 'secondary',
             variant: 'outlined',
-            onClick: () => setOpenPanel(false),
+            onClick: handleClose,
         },
         {
             text: 'Lưu',
+            onClick: () => formRef.current.submit(),
         },
     ];
 
@@ -38,11 +50,16 @@ const TheaterList = () => {
                 buttons={buttons}
                 searchable
                 url="/theaters/all"
-                onEdit={() => {}}
+                onEdit={(_, item) => handleOpen(item)}
                 onDelete={() => {}}
             />
-            <Panel title="Tạo rạp" open={openPanel} onClose={() => setOpenPanel(false)} buttons={panelButtons}>
-                <div className="h-[10000px]">Test</div>
+            <Panel
+                title={selectedItem ? 'Sửa rạp chiếu' : 'Tạo rạp chiếu'}
+                open={openPanel}
+                onClose={handleClose}
+                buttons={panelButtons}
+            >
+                <TheaterForm ref={formRef} item={selectedItem} />
             </Panel>
         </Container>
     );

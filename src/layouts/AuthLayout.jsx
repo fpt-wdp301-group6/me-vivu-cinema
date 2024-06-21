@@ -1,6 +1,18 @@
-import { Outlet } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Outlet, useNavigate } from 'react-router-dom';
+import config from '~/config';
+import { useAuth } from '~/hooks';
 
 const AuthLayout = () => {
+    const { user, isLoading } = useAuth();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (user && !isLoading) {
+            navigate(config.routes.cinema);
+        }
+    }, [user, isLoading, navigate]);
+
     return (
         <div className="flex h-screen">
             <div className="w-1/3 max-md:hidden">
