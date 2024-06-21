@@ -92,7 +92,11 @@ const Table = ({ columns, searchable, buttons = [], url, fetcher = defaultFetche
         const queryString = new URLSearchParams(filteredParams).toString();
         return `${url}?${queryString}`;
     }, [url, options]);
-    const { data } = useSWR(queryUrl, fetcher);
+    const { data } = useSWR(queryUrl, fetcher, {
+        revalidateIfStale: false,
+        revalidateOnFocus: false,
+        revalidateOnReconnect: false,
+    });
 
     const handleChangeOptions = (key, value) => {
         setOptions((prev) => ({

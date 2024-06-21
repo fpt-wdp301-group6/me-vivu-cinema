@@ -28,8 +28,8 @@ const Header = () => {
                     </Tooltip>
                     <ButtonBase sx={{ borderRadius: 2 }}>
                         <div className="flex items-center gap-2 p-1">
-                            <Avatar sx={{ width: 28, height: 28 }} src={user.avatar} />
-                            <h6 className="font-medium">{user.name}</h6>
+                            <Avatar sx={{ width: 28, height: 28 }} src={user?.avatar} />
+                            <h6 className="font-medium">{user?.name}</h6>
                         </div>
                     </ButtonBase>
                 </div>

@@ -42,16 +42,7 @@ const NAV_LISTS = [
             {
                 icon: <TheatersIcon />,
                 text: 'Rạp chiếu phim',
-                subNav: [
-                    {
-                        text: 'Danh sách',
-                        href: config.routes.theater.list,
-                    },
-                    {
-                        text: 'Tạo rạp chiếu',
-                        href: config.routes.theater.create,
-                    },
-                ],
+                href: config.routes.theater,
             },
         ],
     },
