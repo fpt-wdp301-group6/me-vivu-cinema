@@ -35,7 +35,7 @@ api.interceptors.response.use(
 
                 try {
                     const res = await api.post('/auth/refresh-token');
-                    localStorage.setItem('token', res.data?.token);
+                    localStorage.setItem('token', res.token);
                     return api(config);
                 } catch (error) {
                     return Promise.reject(error.response);

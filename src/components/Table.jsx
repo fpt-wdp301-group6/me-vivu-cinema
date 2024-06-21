@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 import {
     Button,
     InputAdornment,
@@ -75,131 +75,150 @@ const TableHeader = ({ columns = [], onSortClick, orderBy = 'test', action }) =>
     );
 };
 
-const Table = ({ columns, searchable, buttons = [], url, fetcher = defaultFetcher, onEdit, onDelete }) => {
-    const hasHeader = searchable || buttons?.length > 0;
-    const action = Boolean(onEdit || onDelete);
-    const [total, setTotal] = useState(0);
-    const [search, setSearch] = useState();
-    const searchContent = useDebounce(search, 500);
-    const [options, setOptions] = useState({
-        page: 1,
-        limit: 10,
-        search: search,
-    });
+const Table = forwardRef(
+    ({ columns, searchable, buttons = [], url, fetcher = defaultFetcher, onEdit, onDelete }, ref) => {
+        const hasHeader = searchable || buttons?.length > 0;
+        const action = Boolean(onEdit || onDelete);
+        const [total, setTotal] = useState(0);
+        const [search, setSearch] = useState();
+        const searchContent = useDebounce(search, 500);
+        const [options, setOptions] = useState({
+            page: 1,
+            limit: 10,
+            search: search,
+        });
 
-    const queryUrl = useMemo(() => {
-        const filteredParams = Object.fromEntries(Object.entries(options).filter(([key, value]) => !!value));
-        const queryString = new URLSearchParams(filteredParams).toString();
-        return `${url}?${queryString}`;
-    }, [url, options]);
-    const { data } = useSWR(queryUrl, fetcher);
+        const queryUrl = useMemo(() => {
+            const filteredParams = Object.fromEntries(Object.entries(options).filter(([key, value]) => !!value));
+            const queryString = new URLSearchParams(filteredParams).toString();
+            return `${url}?${queryString}`;
+        }, [url, options]);
+        const { data, mutate } = useSWR(queryUrl, fetcher, {
+            revalidateIfStale: false,
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
+        });
 
-    const handleChangeOptions = (key, value) => {
-        setOptions((prev) => ({
-            ...prev,
-            [key]: value,
+        const handleChangeOptions = (key, value) => {
+            setOptions((prev) => ({
+                ...prev,
+                [key]: value,
+            }));
+        };
+
+        const handleSort = (sort) => {
+            handleChangeOptions('sort', sort);
+        };
+
+        const handleSearch = (event) => {
+            const value = event.target.value;
+            if (!value.startsWith(' ')) {
+                setSearch(value);
+            }
+        };
+        useEffect(() => {
+            handleChangeOptions('search', searchContent);
+        }, [searchContent]);
+
+        useEffect(() => {
+            if (data) {
+                setTotal(data.total);
+            }
+        }, [data]);
+
+        useImperativeHandle(ref, () => ({
+            loadFirstPage: () => {
+                setOptions((prev) => ({ ...prev, page: 1 }));
+                mutate();
+            },
+            loadCurrentPage: () => {
+                mutate();
+            },
         }));
-    };
 
-    const handleSort = (sort) => {
-        handleChangeOptions('sort', sort);
-    };
-
-    const handleSearch = (event) => {
-        const value = event.target.value;
-        if (!value.startsWith(' ')) {
-            setSearch(value);
-        }
-    };
-    useEffect(() => {
-        handleChangeOptions('search', searchContent);
-    }, [searchContent]);
-
-    useEffect(() => {
-        if (data) {
-            setTotal(data.total);
-        }
-    }, [data]);
-
-    return (
-        <Paper variant="outlined">
-            {hasHeader && (
-                <div className="flex items-center justify-between p-4 border-b">
-                    <div>
-                        {searchable && (
-                            <TextField
-                                size="small"
-                                InputProps={{
-                                    startAdornment: (
-                                        <InputAdornment position="start">
-                                            <SearchIcon />
-                                        </InputAdornment>
-                                    ),
-                                }}
-                                placeholder="Tìm kiếm..."
-                                value={search}
-                                onChange={handleSearch}
-                            />
-                        )}
+        return (
+            <Paper variant="outlined">
+                {hasHeader && (
+                    <div className="flex items-center justify-between p-4 border-b">
+                        <div>
+                            {searchable && (
+                                <TextField
+                                    size="small"
+                                    InputProps={{
+                                        startAdornment: (
+                                            <InputAdornment position="start">
+                                                <SearchIcon />
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                    placeholder="Tìm kiếm..."
+                                    value={search}
+                                    onChange={handleSearch}
+                                />
+                            )}
+                        </div>
+                        <div className="flex items-center gap-1">
+                            {buttons?.map((button, index) => (
+                                <Button key={index} component={button.href && Link} to={button.href || '#'} {...button}>
+                                    {button.text}
+                                </Button>
+                            ))}
+                        </div>
                     </div>
-                    <div className="flex items-center gap-1">
-                        {buttons?.map((button, index) => (
-                            <Button key={index} component={button.href && Link} to={button.href || '#'} {...button}>
-                                {button.text}
-                            </Button>
-                        ))}
-                    </div>
-                </div>
-            )}
-            <TableContainer>
-                <MuiTable>
-                    <TableHeader columns={columns} onSortClick={handleSort} action={action} />
-                    <TableBody>
-                        {data?.data.map((row, index) => (
-                            <TableRow key={index}>
-                                {columns.map((col, colIndex) => (
-                                    <TableCell key={colIndex}>{col.valueGetter?.(row) || row[col.id]}</TableCell>
-                                ))}
-                                {action && (
-                                    <TableCell>
-                                        <div className="flex items-center gap-2">
-                                            {onEdit && (
-                                                <Tooltip title="Sửa">
-                                                    <IconButton size="small" onClick={(event) => onEdit(event, row)}>
-                                                        <EditOutlinedIcon />
-                                                    </IconButton>
-                                                </Tooltip>
-                                            )}
-                                            {onDelete && (
-                                                <Tooltip title="Xoá">
-                                                    <IconButton
-                                                        size="small"
-                                                        onClick={(event) => onDelete(event, row)}
-                                                        color="error"
-                                                    >
-                                                        <DeleteOutlineIcon />
-                                                    </IconButton>
-                                                </Tooltip>
-                                            )}
-                                        </div>
-                                    </TableCell>
-                                )}
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </MuiTable>
-            </TableContainer>
-            <TablePagination
-                rowsPerPageOptions={[1, 5, 10, 20]}
-                component="div"
-                count={total}
-                rowsPerPage={options.limit}
-                page={options.page - 1}
-                onPageChange={(_, value) => handleChangeOptions('page', value + 1)}
-                onRowsPerPageChange={(event) => handleChangeOptions('limit', event.target.value)}
-            />
-        </Paper>
-    );
-};
+                )}
+                <TableContainer>
+                    <MuiTable>
+                        <TableHeader columns={columns} onSortClick={handleSort} action={action} />
+                        <TableBody>
+                            {data?.data.map((row, index) => (
+                                <TableRow key={index}>
+                                    {columns.map((col, colIndex) => (
+                                        <TableCell key={colIndex}>{col.valueGetter?.(row) || row[col.id]}</TableCell>
+                                    ))}
+                                    {action && (
+                                        <TableCell>
+                                            <div className="flex items-center gap-2">
+                                                {onEdit && (
+                                                    <Tooltip title="Sửa">
+                                                        <IconButton
+                                                            size="small"
+                                                            onClick={(event) => onEdit(event, row)}
+                                                        >
+                                                            <EditOutlinedIcon />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                )}
+                                                {onDelete && (
+                                                    <Tooltip title="Xoá">
+                                                        <IconButton
+                                                            size="small"
+                                                            onClick={(event) => onDelete(event, row)}
+                                                            color="error"
+                                                        >
+                                                            <DeleteOutlineIcon />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                )}
+                                            </div>
+                                        </TableCell>
+                                    )}
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </MuiTable>
+                </TableContainer>
+                <TablePagination
+                    rowsPerPageOptions={[1, 5, 10, 20]}
+                    component="div"
+                    count={total}
+                    rowsPerPage={options.limit}
+                    page={options.page - 1}
+                    onPageChange={(_, value) => handleChangeOptions('page', value + 1)}
+                    onRowsPerPageChange={(event) => handleChangeOptions('limit', event.target.value)}
+                />
+            </Paper>
+        );
+    },
+);
 
 export default Table;
