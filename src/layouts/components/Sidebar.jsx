@@ -5,6 +5,8 @@ import { Stack } from '@mui/material';
 import NavList from './NavList';
 import SpeedIcon from '@mui/icons-material/Speed';
 import TheatersIcon from '@mui/icons-material/Theaters';
+import FastfoodIcon from '@mui/icons-material/Fastfood';
+import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
 
 const Sidebar = () => {
     return (
@@ -43,6 +45,16 @@ const NAV_LISTS = [
                 icon: <TheatersIcon />,
                 text: 'Rạp chiếu phim',
                 href: config.routes.theater,
+            },
+            {
+                icon: <MeetingRoomIcon />,
+                text: 'Phòng chiếu',
+                href: config.routes.room,
+            },
+            {
+                icon: <FastfoodIcon />,
+                text: 'Đồ ăn',
+                href: config.routes.food,
             },
         ],
     },

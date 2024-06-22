@@ -17,7 +17,7 @@ const AdminLayout = () => {
 
     return (
         <div className="flex min-h-screen bg-[#fafafb]">
-            <div className="flex-shrink-0 w-[260px] border-r">
+            <div className="flex-shrink-0 w-[260px] bg-white border-r">
                 <Sidebar />
             </div>
             <main className="flex-1">
