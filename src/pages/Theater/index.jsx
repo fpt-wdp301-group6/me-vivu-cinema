@@ -2,6 +2,9 @@ import { useRef, useState } from 'react';
 import { Container } from '@mui/material';
 import { Panel, Table } from '~/components';
 import TheaterForm from './TheaterForm';
+import { constants, emitter } from '~/utils';
+import api from '~/config/api';
+import { toast } from 'react-toastify';
 
 const TheaterList = () => {
     const [openPanel, setOpenPanel] = useState(false);
@@ -52,6 +55,19 @@ const TheaterList = () => {
         handleClose();
     };
 
+    const onDelete = (event, item) => {
+        const caller = () => {
+            api.delete(`/theaters/${item._id}/force`)
+                .then((res) => {
+                    toast.success(res.message);
+                    reloadTable(true);
+                })
+                .catch((err) => err.data?.message || constants.sthWentWrong);
+        };
+
+        emitter.confirm('Xoá rạp chiếu', `Bạn có chắc muốn xoá rạp chiếu ${item.name}?`, caller);
+    };
+
     return (
         <Container className="py-8">
             <h1 className="mb-4 text-3xl font-bold">Danh sách rạp chiếu phim</h1>
@@ -62,7 +78,7 @@ const TheaterList = () => {
                 searchable
                 url="/theaters/all"
                 onEdit={(_, item) => handleOpen(item)}
-                onDelete={() => {}}
+                onDelete={onDelete}
             />
             <Panel
                 title={selectedItem ? 'Sửa rạp chiếu' : 'Tạo rạp chiếu'}

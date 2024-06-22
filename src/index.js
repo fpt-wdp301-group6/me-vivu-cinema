@@ -6,14 +6,12 @@ import './index.scss';
 import App from './App';
 import MuiProvider from './contexts/MuiProvider';
 import AuthProvider from './contexts/AuthProvider';
-import { ToastContainer } from 'react-toastify';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
     <AuthProvider>
         <MuiProvider>
             <App />
-            <ToastContainer />
         </MuiProvider>
     </AuthProvider>,
 );
