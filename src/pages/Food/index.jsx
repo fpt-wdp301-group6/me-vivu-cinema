@@ -26,7 +26,7 @@ const Food = () => {
     };
     const onDelete = (event, item) => {
         const caller = () => {
-            api.delete(`/foods/${item._id}/force`)
+            api.delete(`/foods/${item._id}`)
                 .then((res) => {
                     toast.success(res.message);
                     reloadTable(true);
