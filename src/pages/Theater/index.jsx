@@ -23,7 +23,7 @@ const TheaterList = () => {
 
     const columns = [
         { id: 'name', header: 'Tên rạp', sortable: true },
-        { id: 'address', header: 'Địa chỉ', valueGetter: (row) => `${row.address.detail}` },
+        { id: 'address.detail', header: 'Địa chỉ', valueGetter: (row) => `${row.address.detail}` },
     ];
 
     const buttons = [
@@ -76,6 +76,7 @@ const TheaterList = () => {
                 columns={columns}
                 buttons={buttons}
                 searchable
+                pagination
                 url="/theaters/all"
                 onEdit={(_, item) => handleOpen(item)}
                 onDelete={onDelete}

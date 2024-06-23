@@ -23,22 +23,29 @@ import useSWR from 'swr';
 import { fetcher as defaultFetcher } from '~/config/api';
 import { useDebounce } from '~/hooks';
 
-const TableHeader = ({ columns = [], onSortClick, orderBy = 'test', action }) => {
+const TableHeader = ({ columns = [], onSortClick, action }) => {
     const [order, setOrder] = useState();
+    const [orderBy, setOrderBy] = useState();
 
     const handleSortClick = (id) => () => {
-        switch (order) {
-            case 'asc':
-                setOrder('desc');
-                onSortClick(`-${id}`);
-                break;
-            case 'desc':
-                setOrder(undefined);
-                onSortClick();
-                break;
-            default:
-                setOrder('asc');
-                onSortClick(id);
+        if (id !== orderBy) {
+            setOrderBy(id);
+            setOrder('asc');
+            onSortClick(id);
+        } else {
+            switch (order) {
+                case 'asc':
+                    setOrder('desc');
+                    onSortClick(`-${id}`);
+                    break;
+                case 'desc':
+                    setOrder(undefined);
+                    onSortClick();
+                    break;
+                default:
+                    setOrder('asc');
+                    onSortClick(id);
+            }
         }
     };
 
@@ -57,7 +64,7 @@ const TableHeader = ({ columns = [], onSortClick, orderBy = 'test', action }) =>
                         >
                             {sortable ? (
                                 <TableSortLabel
-                                    onClick={handleSortClick}
+                                    onClick={handleSortClick(id)}
                                     direction={order}
                                     active={order && orderBy === id}
                                 >
@@ -76,23 +83,27 @@ const TableHeader = ({ columns = [], onSortClick, orderBy = 'test', action }) =>
 };
 
 const Table = forwardRef(
-    ({ columns, searchable, buttons = [], url, fetcher = defaultFetcher, onEdit, onDelete }, ref) => {
+    (
+        { columns, searchable, pagination, filter = {}, buttons = [], url, fetcher = defaultFetcher, onEdit, onDelete },
+        ref,
+    ) => {
         const hasHeader = searchable || buttons?.length > 0;
         const action = Boolean(onEdit || onDelete);
         const [total, setTotal] = useState(0);
         const [search, setSearch] = useState();
         const searchContent = useDebounce(search, 500);
         const [options, setOptions] = useState({
-            page: 1,
-            limit: 10,
+            page: pagination && 1,
+            limit: pagination && 10,
             search: search,
         });
 
         const queryUrl = useMemo(() => {
-            const filteredParams = Object.fromEntries(Object.entries(options).filter(([key, value]) => !!value));
-            const queryString = new URLSearchParams(filteredParams).toString();
+            const filteredOptions = Object.fromEntries(Object.entries(options).filter(([key, value]) => !!value));
+            const filteredFilter = Object.fromEntries(Object.entries(filter).filter(([key, value]) => !!value));
+            const queryString = new URLSearchParams({ ...filteredOptions, ...filteredFilter }).toString();
             return `${url}?${queryString}`;
-        }, [url, options]);
+        }, [url, options, filter]);
         const { data, mutate } = useSWR(queryUrl, fetcher, {
             revalidateIfStale: false,
             revalidateOnFocus: false,
@@ -212,18 +223,20 @@ const Table = forwardRef(
                         </TableBody>
                     </MuiTable>
                 </TableContainer>
-                <TablePagination
-                    rowsPerPageOptions={[1, 5, 10, 20]}
-                    component="div"
-                    count={total}
-                    rowsPerPage={options.limit}
-                    page={options.page - 1}
-                    onPageChange={(_, value) => handleChangeOptions('page', value + 1)}
-                    onRowsPerPageChange={(event) => {
-                        handleChangeOptions('limit', event.target.value);
-                        handleChangeOptions('page', 1);
-                    }}
-                />
+                {pagination && (
+                    <TablePagination
+                        rowsPerPageOptions={[1, 5, 10, 20]}
+                        component="div"
+                        count={total}
+                        rowsPerPage={options.limit || data.length || 0}
+                        page={options.page - 1}
+                        onPageChange={(_, value) => handleChangeOptions('page', value + 1)}
+                        onRowsPerPageChange={(event) => {
+                            handleChangeOptions('limit', event.target.value);
+                            handleChangeOptions('page', 1);
+                        }}
+                    />
+                )}
             </Paper>
         );
     },
