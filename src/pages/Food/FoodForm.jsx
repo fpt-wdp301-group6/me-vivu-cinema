@@ -2,7 +2,7 @@ import * as yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { TextField } from '@mui/material';
-import React, { forwardRef, useImperativeHandle } from 'react';
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useMount } from '~/hooks';
 import api from '~/config/api';
@@ -11,25 +11,51 @@ import { constants } from '~/utils';
 const schema = yup.object().shape({
     name: yup.string().required('Vui lòng nhập tên'),
     description: yup.string().required('Vui lòng nhập mô tả'),
-    price: yup.string().required('Vui lòng nhập giá'),
-    image: yup.string(),
+    price: yup.number().required('Vui lòng nhập giá').typeError('Giá phải là số'),
+    image: yup
+        .mixed((input) => input instanceof FileList)
+        .test('haswatchImage', 'Vui lòng chọn ảnh watchImage', (value) => {
+            if (!value || !value.length) return false;
+            return true;
+        }),
 });
 
 const FoodForm = forwardRef(({ item, reloadTable }, ref) => {
+    const [inputImage, setInputImage] = useState();
+
     const {
         register,
         handleSubmit,
         setValue,
+        watch,
         formState: { errors },
     } = useForm({
         resolver: yupResolver(schema),
     });
 
+    const watchImage = watch('image');
+
+    useEffect(() => {
+        if (watchImage && watchImage.length > 0) {
+            const url = URL.createObjectURL(watchImage[0]);
+            setInputImage(url);
+
+            return () => URL.revokeObjectURL(url);
+        }
+    }, [watchImage]);
+
     const onSubmit = async (data) => {
         let caller;
-        const { name, description, price, image } = data;
-        const formData = { name, description, price, image };
-
+        const formData = new FormData();
+        Object.entries(data).forEach(([key, value]) => {
+            if (value instanceof FileList) {
+                for (let i = 0; i < value.length; i++) {
+                    formData.append(key, value[i]);
+                }
+            } else {
+                formData.append(key, value.toString());
+            }
+        });
         if (item) {
             caller = api.put(`/foods/${item._id}`, formData);
         } else {
@@ -84,7 +110,20 @@ const FoodForm = forwardRef(({ item, reloadTable }, ref) => {
                 error={!!errors.price}
                 helperText={errors.price?.message}
             />
-            <TextField type="file" {...register('image')} error={!!errors.image} helperText={errors.image?.message} />
+            <TextField
+                inputProps={{ accept: 'image/*' }}
+                type="file"
+                {...register('image')}
+                error={!!errors.image}
+                helperText={errors.image?.message}
+            />
+            {inputImage && (
+                <img
+                    className="rounded-md w-80 object-contain bg-gray-300 aspect-square"
+                    src={inputImage}
+                    alt={'popcorn'}
+                />
+            )}
         </form>
     );
 });
