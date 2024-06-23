@@ -14,7 +14,7 @@ const schema = yup.object().shape({
     price: yup.number().required('Vui lòng nhập giá').typeError('Giá phải là số'),
     image: yup
         .mixed((input) => input instanceof FileList)
-        .test('haswatchImage', 'Vui lòng chọn ảnh watchImage', (value) => {
+        .test('hasImage', 'Vui lòng chọn ảnh', (value) => {
             if (!value || !value.length) return false;
             return true;
         }),
@@ -106,6 +106,7 @@ const FoodForm = forwardRef(({ item, reloadTable }, ref) => {
             />
             <TextField
                 label="Giá sản phẩm"
+                type="number"
                 {...register('price')}
                 error={!!errors.price}
                 helperText={errors.price?.message}
@@ -119,7 +120,7 @@ const FoodForm = forwardRef(({ item, reloadTable }, ref) => {
             />
             {inputImage && (
                 <img
-                    className="rounded-md w-80 object-contain bg-gray-300 aspect-square"
+                    className="object-contain bg-gray-300 rounded-md w-80 aspect-square"
                     src={inputImage}
                     alt={'popcorn'}
                 />
