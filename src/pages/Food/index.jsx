@@ -5,6 +5,7 @@ import { Panel, Table } from '~/components';
 import api from '~/config/api';
 import { constants, emitter } from '~/utils';
 import FoodForm from './FoodForm';
+import { formatCurrency } from '~/utils/formatCurrency';
 
 const Food = () => {
     // States
@@ -48,7 +49,7 @@ const Food = () => {
         { id: 'name', header: 'Tên sản phẩm', sortable: true },
         { id: 'description', header: 'Mô tả', sortable: true },
         { id: 'image', header: 'Hình ảnh', sortable: true },
-        { id: 'price', header: 'Giá', sortable: true },
+        { id: 'price', header: 'Giá', sortable: true, valueGetter: (row) => `${formatCurrency(row.price)}` },
 
         // { id: 'address', header: 'Địa chỉ', valueGetter: (row) => `${row.address.detail}` },
     ];
