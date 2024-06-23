@@ -86,6 +86,7 @@ const AuthProvider = ({ children }) => {
         dispatch({ type: 'LOGOUT' });
         try {
             await api('/auth/logout');
+            localStorage.removeItem('token');
         } catch (error) {
             console.log(error);
         }

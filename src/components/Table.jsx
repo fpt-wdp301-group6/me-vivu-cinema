@@ -104,11 +104,7 @@ const Table = forwardRef(
             const queryString = new URLSearchParams({ ...filteredOptions, ...filteredFilter }).toString();
             return `${url}?${queryString}`;
         }, [url, options, filter]);
-        const { data, mutate } = useSWR(queryUrl, fetcher, {
-            revalidateIfStale: false,
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false,
-        });
+        const { data, mutate } = useSWR(queryUrl, fetcher);
 
         const handleChangeOptions = (key, value) => {
             setOptions((prev) => ({
@@ -137,15 +133,9 @@ const Table = forwardRef(
             }
         }, [data]);
 
-        useEffect(() => {
-            mutate();
-            // eslint-disable-next-line react-hooks/exhaustive-deps
-        }, [options]);
-
         useImperativeHandle(ref, () => ({
             loadFirstPage: () => {
                 setOptions((prev) => ({ ...prev, page: 1 }));
-                mutate();
             },
             loadCurrentPage: () => {
                 mutate();

@@ -4,7 +4,7 @@ import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined
 import { useAuth } from '~/hooks';
 
 const Header = () => {
-    const { user } = useAuth();
+    const { user, logout } = useAuth();
 
     return (
         <header className="fixed top-0 left-[260px] right-0 z-50">
@@ -26,7 +26,7 @@ const Header = () => {
                             <NotificationsOutlinedIcon />
                         </IconButton>
                     </Tooltip>
-                    <ButtonBase sx={{ borderRadius: 2 }}>
+                    <ButtonBase sx={{ borderRadius: 2 }} onClick={logout}>
                         <div className="flex items-center gap-2 p-1">
                             <Avatar sx={{ width: 28, height: 28 }} src={user?.avatar} />
                             <h6 className="font-medium">{user?.name}</h6>
