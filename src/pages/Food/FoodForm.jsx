@@ -57,9 +57,19 @@ const FoodForm = forwardRef(({ item, reloadTable }, ref) => {
             }
         });
         if (item) {
-            caller = api.put(`/foods/${item._id}`, formData);
+            caller = api.put(`/foods/${item._id}`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                }
+            });
         } else {
-            caller = api.post('/foods', formData);
+            caller = api.post('/foods', formData,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    }
+                }
+            );
         }
 
         try {
@@ -77,11 +87,11 @@ const FoodForm = forwardRef(({ item, reloadTable }, ref) => {
 
     useMount(() => {
         if (item) {
+            setInputImage(item.image);
             const defaultValues = {
                 name: item.name || '',
                 description: item.description || '',
                 price: item.price || '',
-                image: item.price || '',
             };
 
             Object.keys(defaultValues).forEach((key) => {
@@ -118,6 +128,7 @@ const FoodForm = forwardRef(({ item, reloadTable }, ref) => {
                 error={!!errors.image}
                 helperText={errors.image?.message}
             />
+
             {inputImage && (
                 <img
                     className="object-contain bg-gray-300 rounded-md w-80 aspect-square"

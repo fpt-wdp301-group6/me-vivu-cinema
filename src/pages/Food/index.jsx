@@ -45,9 +45,25 @@ const Food = () => {
     };
 
     const columns = [
-        { id: 'name', header: 'Tên sản phẩm' },
+        {
+            id: 'name', header: 'Tên sản phẩm', valueGetter: (row) =>
+                <div
+                    style={{
+                        display: "flex",
+                        gap: "10px",
+                        alignItems: "center"
+                    }}
+                >
+                    <span>{row.name}</span>
+                    <img style={{
+                        width: "60px",
+                        height: "40px",
+                        objectFit: "cover",
+                        borderRadius: "4px"
+                    }} src={row.image} alt={row.image} />
+                </div>
+        },
         { id: 'description', header: 'Mô tả' },
-        { id: 'image', header: 'Hình ảnh' },
         { id: 'price', header: 'Giá', valueGetter: (row) => format.price(row.price) },
     ];
 
