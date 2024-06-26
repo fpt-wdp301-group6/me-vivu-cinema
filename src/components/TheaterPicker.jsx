@@ -5,7 +5,7 @@ import { fetcher } from '~/config/api';
 
 const TheaterPicker = forwardRef(
     (
-        { onChange, onBlur, error, helperText, name, label = 'Rạp phim', fullWidth = false, defaultValue = '' },
+        { onChange, onBlur, error, helperText, name, label = 'Lựa chọn rạp chiếu', fullWidth = false, defaultValue = '' },
         ref,
     ) => {
         const { data: theaters } = useSWR('/theaters/all', fetcher, {

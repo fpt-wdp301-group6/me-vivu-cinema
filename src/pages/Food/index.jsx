@@ -46,21 +46,15 @@ const Food = () => {
 
     const columns = [
         {
-            id: 'name', header: 'Tên sản phẩm', valueGetter: (row) =>
+            id: 'name', header: 'Sản phẩm', valueGetter: (row) =>
                 <div
-                    style={{
-                        display: "flex",
-                        gap: "10px",
-                        alignItems: "center"
-                    }}
+                    className='flex gap-4 items-center'
                 >
+                    <img
+                        className='rounded-md w-20 object-cover'
+                        src={row.image} alt={row.name} />
                     <span>{row.name}</span>
-                    <img style={{
-                        width: "60px",
-                        height: "40px",
-                        objectFit: "cover",
-                        borderRadius: "4px"
-                    }} src={row.image} alt={row.image} />
+
                 </div>
         },
         { id: 'description', header: 'Mô tả' },

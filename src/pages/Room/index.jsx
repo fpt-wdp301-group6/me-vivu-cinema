@@ -1,16 +1,109 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { Container } from '@mui/material';
-import { Table } from '~/components';
+import { Panel, Table } from '~/components';
+import TheaterPicker from '~/components/TheaterPicker';
+import { constants, emitter } from '~/utils';
+import api from '~/config/api';
+import { toast } from 'react-toastify';
+import RoomForm from './RoomForm';
 
 const Room = () => {
+    const [openPanel, setOpenPanel] = useState(false);
+    const [selectedItem, setSelectedItem] = useState();
+    const [isTheaterSelected, setIsTheaterSelected] = useState(false)
+    const [theaterId, setTheaterId] = useState("")
+    const formRef = useRef();
     const tableRef = useRef();
 
-    const columns = [{ id: 'name', header: 'Tên phòng', sortable: true }];
+    const handleOpen = (item) => {
+        setSelectedItem(item);
+        setOpenPanel(true);
+    };
 
+    const handleClose = () => {
+        setOpenPanel(false);
+    };
+
+    const columns = [
+        { id: '_id', header: 'Mã số phòng', sortable: true },
+        { id: 'name', header: 'Tên phòng', sortable: true },
+        { id: 'seats', header: 'Số lượng ghế', sortable: true, valueGetter: (row) => `${row.seats.length}` }
+
+
+    ];
+
+    const buttons = [
+        {
+            text: 'Thêm',
+            onClick: () => handleOpen(),
+        },
+    ];
+
+    const panelButtons = [
+        {
+            text: 'Hủy',
+            color: 'secondary',
+            variant: 'outlined',
+            onClick: handleClose,
+        },
+        {
+            text: 'Lưu',
+            onClick: () => formRef.current.submit(),
+        },
+    ];
+
+    const reloadTable = (isUpdated) => {
+        if (isUpdated) {
+            tableRef.current.loadCurrentPage();
+        } else {
+            tableRef.current.loadFirstPage();
+        }
+        handleClose();
+    };
+
+    const handleOnChange = (e) => {
+        setTheaterId(e.target.value)
+        setIsTheaterSelected(true);
+    }
+
+    const onDelete = (event, item) => {
+        const caller = () => {
+            api.delete(`/theaters/${item._id}/force`)
+                .then((res) => {
+                    toast.success(res.message);
+                    reloadTable(true);
+                })
+                .catch((err) => err.data?.message || constants.sthWentWrong);
+        };
+
+        emitter.confirm('Xoá phòng chiếu', `Bạn có chắc muốn xoá phòng chiếu ${item.name}?`, caller);
+    };
     return (
         <Container className="py-8">
             <h1 className="mb-4 text-3xl font-bold">Danh sách phòng chiếu</h1>
-            <Table ref={tableRef} columns={columns} url="/rooms" />
+            <div className='mb-10'>
+                <TheaterPicker onChange={handleOnChange} />
+            </div>
+            {isTheaterSelected &&
+                <Table
+                    ref={tableRef}
+                    columns={columns}
+                    url={`/rooms/${theaterId}`}
+                    searchable
+                    buttons={buttons}
+                    pagination
+                    onEdit={(_, item) => handleOpen(item)}
+                    onDelete={onDelete}
+                />
+            }
+            <Panel
+                title={selectedItem ? 'Sửa phòng chiếu' : 'Tạo phòng chiếu'}
+                open={openPanel}
+                onClose={handleClose}
+                buttons={panelButtons}
+            >
+                <RoomForm ref={formRef} item={selectedItem} reloadTable={reloadTable} />
+            </Panel>
         </Container>
     );
 };
