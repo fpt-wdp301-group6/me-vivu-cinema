@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Container } from '@mui/material';
 import { Panel, Table } from '~/components';
 import TheaterPicker from '~/components/TheaterPicker';
@@ -68,7 +68,7 @@ const Room = () => {
 
     const onDelete = (event, item) => {
         const caller = () => {
-            api.delete(`/theaters/${item._id}/force`)
+            api.delete(`/rooms/${item._id}`)
                 .then((res) => {
                     toast.success(res.message);
                     reloadTable(true);
@@ -78,6 +78,7 @@ const Room = () => {
 
         emitter.confirm('Xoá phòng chiếu', `Bạn có chắc muốn xoá phòng chiếu ${item.name}?`, caller);
     };
+
     return (
         <Container className="py-8">
             <h1 className="mb-4 text-3xl font-bold">Danh sách phòng chiếu</h1>
@@ -102,7 +103,7 @@ const Room = () => {
                 onClose={handleClose}
                 buttons={panelButtons}
             >
-                <RoomForm ref={formRef} item={selectedItem} reloadTable={reloadTable} />
+                <RoomForm theaterId={theaterId} ref={formRef} item={selectedItem} reloadTable={reloadTable} />
             </Panel>
         </Container>
     );
