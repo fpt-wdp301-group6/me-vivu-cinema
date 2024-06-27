@@ -1,4 +1,3 @@
-import { CityPicker, DistrictPicker, WardPicker } from '~/components';
 import * as yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -18,12 +17,10 @@ const RoomForm = forwardRef(({ theaterId, item, reloadTable }, ref) => {
         register,
         handleSubmit,
         setValue,
-        // watch,
         formState: { errors },
     } = useForm({
         resolver: yupResolver(schema),
     });
-
 
     const onSubmit = async (data) => {
         const sentData = { ...data, theaterId };
@@ -38,7 +35,7 @@ const RoomForm = forwardRef(({ theaterId, item, reloadTable }, ref) => {
         try {
             const res = await caller;
             toast.success(res.message);
-            reloadTable(item)
+            reloadTable(item);
         } catch (err) {
             toast.error(err.data?.message || constants.sthWentWrong);
         }
@@ -52,7 +49,6 @@ const RoomForm = forwardRef(({ theaterId, item, reloadTable }, ref) => {
         if (item) {
             const defaultValues = {
                 name: item.name || '',
-
             };
 
             Object.keys(defaultValues).forEach((key) => {

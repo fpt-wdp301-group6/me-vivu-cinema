@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Container } from '@mui/material';
 import { Panel, Table } from '~/components';
-import TheaterPicker from '~/components/TheaterPicker';
+import { TheaterPicker } from '~/components';
 import { constants, emitter } from '~/utils';
 import api from '~/config/api';
 import { toast } from 'react-toastify';
@@ -10,8 +10,8 @@ import RoomForm from './RoomForm';
 const Room = () => {
     const [openPanel, setOpenPanel] = useState(false);
     const [selectedItem, setSelectedItem] = useState();
-    const [isTheaterSelected, setIsTheaterSelected] = useState(false)
-    const [theaterId, setTheaterId] = useState("")
+    const [isTheaterSelected, setIsTheaterSelected] = useState(false);
+    const [theaterId, setTheaterId] = useState('');
     const formRef = useRef();
     const tableRef = useRef();
 
@@ -25,11 +25,8 @@ const Room = () => {
     };
 
     const columns = [
-        { id: '_id', header: 'Mã số phòng', sortable: true },
-        { id: 'name', header: 'Tên phòng', sortable: true },
-        { id: 'seats', header: 'Số lượng ghế', sortable: true, valueGetter: (row) => `${row.seats.length}` }
-
-
+        { id: 'name', header: 'Tên phòng' },
+        { id: 'seats', header: 'Số lượng ghế', valueGetter: (row) => `${row.seats.length}` },
     ];
 
     const buttons = [
@@ -62,9 +59,9 @@ const Room = () => {
     };
 
     const handleOnChange = (e) => {
-        setTheaterId(e.target.value)
+        setTheaterId(e.target.value);
         setIsTheaterSelected(true);
-    }
+    };
 
     const onDelete = (event, item) => {
         const caller = () => {
@@ -82,21 +79,19 @@ const Room = () => {
     return (
         <Container className="py-8">
             <h1 className="mb-4 text-3xl font-bold">Danh sách phòng chiếu</h1>
-            <div className='mb-10'>
+            <div className="mb-10">
                 <TheaterPicker onChange={handleOnChange} />
             </div>
-            {isTheaterSelected &&
+            {isTheaterSelected && (
                 <Table
                     ref={tableRef}
                     columns={columns}
                     url={`/rooms/${theaterId}`}
-                    searchable
                     buttons={buttons}
-                    pagination
                     onEdit={(_, item) => handleOpen(item)}
                     onDelete={onDelete}
                 />
-            }
+            )}
             <Panel
                 title={selectedItem ? 'Sửa phòng chiếu' : 'Tạo phòng chiếu'}
                 open={openPanel}

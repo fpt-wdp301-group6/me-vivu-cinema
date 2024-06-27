@@ -5,14 +5,19 @@ import { fetcher } from '~/config/api';
 
 const TheaterPicker = forwardRef(
     (
-        { onChange, onBlur, error, helperText, name, label = 'Lựa chọn rạp chiếu', fullWidth = false, defaultValue = '' },
+        {
+            onChange,
+            onBlur,
+            error,
+            helperText,
+            name,
+            label = 'Lựa chọn rạp chiếu',
+            fullWidth = false,
+            defaultValue = '',
+        },
         ref,
     ) => {
-        const { data: theaters } = useSWR('/theaters/all', fetcher, {
-            revalidateIfStale: false,
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false,
-        });
+        const { data: theaters } = useSWR('/theaters/all', fetcher);
         const [value, setValue] = useState(defaultValue);
         const selectedValue = useMemo(() => {
             const result = theaters?.data?.find((theater) => theater._id === value);
