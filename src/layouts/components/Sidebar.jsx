@@ -49,7 +49,7 @@ const NAV_LISTS = [
             {
                 icon: <MeetingRoomIcon />,
                 text: 'Phòng chiếu',
-                href: config.routes.room,
+                href: config.routes.room.base,
             },
             {
                 icon: <FastfoodIcon />,

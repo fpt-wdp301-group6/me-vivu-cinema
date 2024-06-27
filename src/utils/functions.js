@@ -1,3 +1,5 @@
+import { compile } from 'path-to-regexp';
+
 const replaceParams = (route, params) => {
     let url = route;
     for (const key in params) {
@@ -14,6 +16,10 @@ const checkRouteMatch = (pattern, url) => {
     return regex.test(url);
 };
 
-const functions = { replaceParams, checkRouteMatch };
+const compileUrl = (pattern, options) => {
+    return compile(pattern).toPath(options);
+};
+
+const functions = { replaceParams, checkRouteMatch, compileUrl };
 
 export default functions;

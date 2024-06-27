@@ -20,7 +20,7 @@ const AdminLayout = () => {
             <div className="flex-shrink-0 w-[260px] bg-white border-r">
                 <Sidebar />
             </div>
-            <main className="flex-1">
+            <main className="flex-1 overflow-x-hidden">
                 <Header />
                 <div className="px-4 py-20">
                     <Outlet />
