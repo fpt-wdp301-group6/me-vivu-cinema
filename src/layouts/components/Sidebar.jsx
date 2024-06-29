@@ -7,6 +7,7 @@ import SpeedIcon from '@mui/icons-material/Speed';
 import TheatersIcon from '@mui/icons-material/Theaters';
 import FastfoodIcon from '@mui/icons-material/Fastfood';
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 
 const Sidebar = () => {
     return (
@@ -55,6 +56,11 @@ const NAV_LISTS = [
                 icon: <FastfoodIcon />,
                 text: 'Đồ ăn',
                 href: config.routes.food,
+            },
+            {
+                icon: <CalendarMonthIcon />,
+                text: 'Lịch chiếu',
+                href: config.routes.showtime,
             },
         ],
     },

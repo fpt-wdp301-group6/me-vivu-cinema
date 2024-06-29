@@ -6,6 +6,7 @@ const routes = {
     theater: `${prefix}/theater`,
     room: `${prefix}/room`,
     food: `${prefix}/food`,
+    showtime: `${prefix}/showtime`,
 };
 
 export default routes;
