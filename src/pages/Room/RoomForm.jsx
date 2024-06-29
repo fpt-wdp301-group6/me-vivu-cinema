@@ -1,12 +1,15 @@
 import * as yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { TextField } from '@mui/material';
+import { IconButton, TextField, Tooltip } from '@mui/material';
 import { forwardRef, useImperativeHandle } from 'react';
 import { toast } from 'react-toastify';
 import { useMount } from '~/hooks';
 import api from '~/config/api';
-import { constants } from '~/utils';
+import { constants, functions } from '~/utils';
+import EventSeatIcon from '@mui/icons-material/EventSeat';
+import { Link } from 'react-router-dom';
+import config from '~/config';
 
 const schema = yup.object().shape({
     name: yup.string().required('Vui lòng nhập tên'),
@@ -58,13 +61,25 @@ const RoomForm = forwardRef(({ theaterId, item, reloadTable }, ref) => {
     });
 
     return (
-        <form className="grid grid-cols-1 gap-x-4 gap-y-6" onSubmit={handleSubmit(onSubmit)}>
+        <form className="flex items-center gap-3" onSubmit={handleSubmit(onSubmit)}>
             <TextField
                 label="Tên rạp chiếu"
                 {...register('name')}
                 error={!!errors.name}
                 helperText={errors.name?.message}
+                className="flex-1"
             />
+            {item && (
+                <Tooltip title="Chỉnh sửa ghế">
+                    <IconButton
+                        size="large"
+                        component={Link}
+                        to={functions.replaceUrl(config.routes.room.seat, { roomId: item._id })}
+                    >
+                        <EventSeatIcon />
+                    </IconButton>
+                </Tooltip>
+            )}
         </form>
     );
 });

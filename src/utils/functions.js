@@ -14,6 +14,14 @@ const checkRouteMatch = (pattern, url) => {
     return regex.test(url);
 };
 
-const functions = { replaceParams, checkRouteMatch };
+function replaceUrl(template, params) {
+    let url = template;
+    for (const key in params) {
+        url = url.replace(`:${key}`, params[key]);
+    }
+    return url;
+}
+
+const functions = { replaceParams, checkRouteMatch, replaceUrl };
 
 export default functions;
