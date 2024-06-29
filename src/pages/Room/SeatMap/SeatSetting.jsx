@@ -3,7 +3,7 @@ import { TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch';
 import Seat, { NoSeat } from './Seat';
 import { v4 } from 'uuid';
 
-const SeatSetting = ({ seats, onDropSeat, disabled }) => {
+const SeatSetting = ({ seats, onDropSeat, disabled, onSeatClick }) => {
     return (
         <TransformWrapper
             centerOnInit
@@ -29,7 +29,7 @@ const SeatSetting = ({ seats, onDropSeat, disabled }) => {
                         {seats.map((row, rowIndex) =>
                             row.map((seat, colIndex) =>
                                 seat ? (
-                                    <Seat key={v4()} seat={seat} x={colIndex} y={rowIndex} />
+                                    <Seat key={v4()} seat={seat} x={colIndex} y={rowIndex} onClick={onSeatClick} />
                                 ) : (
                                     <NoSeat key={v4()} x={colIndex} y={rowIndex} onDrop={onDropSeat} />
                                 ),

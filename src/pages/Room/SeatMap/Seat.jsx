@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import { useDrag, useDrop } from 'react-dnd';
 import { SeatType } from './constants';
 
-const Seat = ({ seat, x, y }) => {
+const Seat = ({ seat, x, y, onClick }) => {
     const [{ isDragging }, drag] = useDrag(() => ({
         type: 'SEAT',
         item: { seat, x, y },
@@ -10,6 +10,10 @@ const Seat = ({ seat, x, y }) => {
             isDragging: !!monitor.isDragging(),
         }),
     }));
+
+    const handleClick = (event) => {
+        onClick?.(event.currentTarget, { ...seat, x, y });
+    };
 
     return (
         <div
@@ -23,6 +27,7 @@ const Seat = ({ seat, x, y }) => {
                     'opacity-50': isDragging,
                 },
             )}
+            onClick={handleClick}
         >
             {seat.name}
         </div>
