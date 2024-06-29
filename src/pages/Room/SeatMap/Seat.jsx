@@ -1,18 +1,41 @@
+import clsx from 'clsx';
+import { useDrag, useDrop } from 'react-dnd';
+import { SeatType } from './constants';
+
 const Seat = ({ seat, x, y }) => {
+    const [{ isDragging }, drag] = useDrag(() => ({
+        type: 'SEAT',
+        item: { seat, x, y },
+        collect: (monitor) => ({
+            isDragging: !!monitor.isDragging(),
+        }),
+    }));
+
     return (
-        <button
-            className="flex items-center justify-center flex-shrink-0 text-xs text-white bg-red-500 rounded-lg"
-            style={{ gridColumn: x + 1, gridRow: y + 1 }}
+        <div
+            ref={drag}
+            className={clsx(
+                'flex items-center justify-center flex-shrink-0 text-xs text-white rounded-lg h-9 cursor-pointer',
+                SeatType.color[seat.type],
+                { 'invisible pointer-events-none': !seat.type },
+                seat.type === SeatType.Couple ? 'w-20' : 'w-9',
+                {
+                    'opacity-50': isDragging,
+                },
+            )}
         >
             {seat.name}
-        </button>
+        </div>
     );
 };
 
-export const NoSeat = ({ x, y }) => {
-    return (
-        <button className="flex-shrink-0 rounded-lg bg-white/20" style={{ gridColumn: x + 1, gridRow: y + 1 }}></button>
-    );
+export const NoSeat = ({ x, y, onDrop }) => {
+    const [, drop] = useDrop(() => ({
+        accept: 'SEAT',
+        drop: (item) => onDrop(x, y, item),
+    }));
+
+    return <div ref={drop} className="flex-shrink-0 rounded-lg bg-white/20"></div>;
 };
 
 export default Seat;
