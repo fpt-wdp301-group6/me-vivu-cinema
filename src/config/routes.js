@@ -4,7 +4,10 @@ const routes = {
     login: '/',
     cinema: prefix,
     theater: `${prefix}/theater`,
-    room: `${prefix}/room`,
+    room: {
+        base: `${prefix}/room`,
+        seat: `${prefix}/room/:roomId/seat`,
+    },
     food: `${prefix}/food`,
     showtime: `${prefix}/showtime`,
 };
