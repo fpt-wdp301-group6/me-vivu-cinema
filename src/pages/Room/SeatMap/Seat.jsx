@@ -35,12 +35,20 @@ const Seat = ({ seat, x, y, onClick }) => {
 };
 
 export const NoSeat = ({ x, y, onDrop }) => {
-    const [, drop] = useDrop(() => ({
+    const [{ isOver }, drop] = useDrop(() => ({
         accept: 'SEAT',
         drop: (item) => onDrop(x, y, item),
+        collect: (monitor) => ({
+            isOver: !!monitor.isOver(),
+        }),
     }));
 
-    return <div ref={drop} className="flex-shrink-0 rounded-lg bg-white/20"></div>;
+    return (
+        <div
+            ref={drop}
+            className={clsx('flex-shrink-0 rounded-lg bg-white transition', isOver ? 'bg-opacity-50' : 'bg-opacity-20')}
+        ></div>
+    );
 };
 
 export default Seat;

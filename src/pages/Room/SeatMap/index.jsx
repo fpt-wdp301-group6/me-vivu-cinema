@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import useSWR from 'swr';
 import api, { fetcher } from '~/config/api';
-import { Button, Divider, IconButton, Paper, Stack, Switch, TextField, Tooltip } from '@mui/material';
-import { Unstable_Popup as BasePopup } from '@mui/base/Unstable_Popup';
+import { Button, Divider, IconButton, Stack, Switch, Tooltip } from '@mui/material';
 import { emitter } from '~/utils';
 import config from '~/config';
 import { DndProvider } from 'react-dnd';
@@ -17,6 +16,8 @@ import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { toast } from 'react-toastify';
+import SeatNamePopup from './SeatNamePopup';
+import DeleteZone from './DeleteZone';
 
 const SeatMap = () => {
     const { roomId } = useParams();
@@ -24,8 +25,7 @@ const SeatMap = () => {
         return Array.from({ length: 12 }).map((arr) => Array.from({ length: 12 }));
     });
     const [editMode, setEditMode] = useState(true);
-    const [anchor, setAnchor] = useState();
-    const [selectedSeat, setSelectedSeat] = useState();
+    const popupRef = useRef();
 
     const navigate = useNavigate();
 
@@ -130,31 +130,22 @@ const SeatMap = () => {
         setSeats(newSeats);
     };
 
-    const handleSelectSeat = useCallback((element, item) => {
-        setAnchor((prev) => {
-            if (prev === element) {
-                setSelectedSeat(null);
-                return null;
-            } else {
-                setSelectedSeat(item);
-                return element;
-            }
-        });
-    }, []);
-
-    const handleChangeSeatName = (event) => {
-        if (selectedSeat) {
-            setSelectedSeat((prev) => ({ ...prev, name: event.target.value }));
+    const handleConfirmSeatName = (item) => {
+        if (item) {
+            const newSeats = [...seats];
+            newSeats[item.y][item.x] = item;
+            setSeats(newSeats);
         }
     };
 
-    const handleConfirmSeatName = () => {
-        if (selectedSeat) {
+    const handleDeleteSeat = (item) => {
+        if (Number.isInteger(item.x) && Number.isInteger(item.y)) {
             const newSeats = [...seats];
-            newSeats[selectedSeat.y][selectedSeat.x] = selectedSeat;
+            newSeats[item.y][item.x] = undefined;
+            if (item.seat.type === SeatType.Couple) {
+                newSeats[item.y][item.x + 1] = undefined;
+            }
             setSeats(newSeats);
-            setSelectedSeat(null);
-            setAnchor(null);
         }
     };
 
@@ -187,7 +178,7 @@ const SeatMap = () => {
                         seats={seats}
                         onDropSeat={handleDropSeat}
                         disabled={editMode}
-                        onSeatClick={handleSelectSeat}
+                        onSeatClick={(el, item) => popupRef.current.open(el, item)}
                     />
                     <div className="h-full p-4 bg-white border-l w-80">
                         <Stack gap={3}>
@@ -271,19 +262,7 @@ const SeatMap = () => {
                                 </div>
                             </div>
                             <Divider />
-                            <BasePopup open={!!anchor} anchor={anchor}>
-                                <Paper className="p-4">
-                                    <div className="flex items-center gap-2">
-                                        <TextField
-                                            label="Số ghế"
-                                            value={selectedSeat?.name}
-                                            onChange={handleChangeSeatName}
-                                            size="small"
-                                        />
-                                        <Button onClick={handleConfirmSeatName}>OK</Button>
-                                    </div>
-                                </Paper>
-                            </BasePopup>
+                            <DeleteZone onDrop={handleDeleteSeat} />
                         </Stack>
                     </div>
                     <div className="absolute left-0 right-0 flex items-center justify-end h-20 gap-2 px-4 bg-white border-t top-full">
@@ -294,6 +273,7 @@ const SeatMap = () => {
                             Lưu
                         </Button>
                     </div>
+                    <SeatNamePopup ref={popupRef} onSubmit={handleConfirmSeatName} />
                 </div>
             </div>
         </DndProvider>
