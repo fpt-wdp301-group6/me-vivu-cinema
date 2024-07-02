@@ -4,6 +4,7 @@ import Dashboard from '../pages/Dashboard';
 import Theater from '../pages/Theater';
 import Room from '../pages/Room';
 import Food from '../pages/Food';
+import Showtime from '../pages/Showtime';
 import Seat from '~/pages/Room/SeatMap';
 
 const router = {
@@ -15,6 +16,7 @@ const router = {
         { path: config.routes.room.base, element: <Room /> },
         { path: config.routes.room.seat, element: <Seat /> },
         { path: config.routes.food, element: <Food /> },
+        { path: config.routes.showtime, element: <Showtime /> },
     ],
 };
 

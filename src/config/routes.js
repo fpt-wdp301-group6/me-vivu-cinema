@@ -9,6 +9,7 @@ const routes = {
         seat: `${prefix}/room/:roomId/seat`,
     },
     food: `${prefix}/food`,
+    showtime: `${prefix}/showtime`,
 };
 
 export default routes;
