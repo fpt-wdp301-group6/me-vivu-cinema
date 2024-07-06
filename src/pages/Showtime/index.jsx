@@ -1,10 +1,14 @@
-import { Container, Paper } from '@mui/material';
-import { TheaterPicker } from '~/components';
+import { Button, Container, Paper } from '@mui/material';
+import { Panel, TheaterPicker } from '~/components';
 import * as yup from 'yup';
 import Calendar from './Calendar';
 import RoomPicker from '~/components/RoomPicker';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { useRef, useState } from 'react';
+// import { emitter } from '~/utils';
+// import { toast } from 'react-toastify';
+// import api from '~/config/api';
 
 // import { constants, emitter } from '~/utils';
 // import api from '~/config/api';
@@ -24,13 +28,53 @@ const Showtime = () => {
     } = useForm({
         resolver: yupResolver(schema),
     });
+    // States
+    const [selectedItem, setSelectedItem] = useState();
+    const [openPanel, setOpenPanel] = useState(false);
+
+    // Refs
+    const formRef = useRef();
 
     const theater = watch('theater');
     const room = watch('room');
+    // Actions
+    const handleOpen = (item) => {
+        setSelectedItem(item);
+        setOpenPanel(true);
+    };
+    const handleClose = () => {
+        setOpenPanel(false);
+    };
+    const panelButtons = [
+        {
+            text: 'Hủy',
+            color: 'secondary',
+            variant: 'outlined',
+            onClick: handleClose,
+        },
+        {
+            text: 'Lưu',
+            onClick: () => formRef.current.submit(),
+        },
+    ];
 
+    // const onDelete = (event, item) => {
+    //     const caller = () => {
+    //         api.delete(`/foods/${item._id}`)
+    //             .then((res) => {
+    //                 toast.success(res.message);
+    //             })
+    //             .catch((err) => err.data?.message || constants.sthWentWrong);
+    //     };
+
+    //     emitter.confirm('Xoá thức ăn/thức uống', `Bạn có chắc muốn xoá ${item.name}?`, caller);
+    // };
     return (
         <Container className="py-8">
-            <h1 className="mb-4 text-3xl font-bold">Lịch chiếu phim</h1>
+            <div className='flex justify-between items-center'>
+                <h1 className="mb-4 text-3xl font-bold">Lịch chiếu phim</h1>
+                <Button onClick={() => handleOpen()} className='h-10'>Add</Button>
+            </div>
             <div className="mb-10 flex flex-col gap-6">
                 <TheaterPicker
                     {...register('theater')}
@@ -46,8 +90,16 @@ const Showtime = () => {
                     defaultValue={room?._id}
                 />
                 <Paper className="mt-6 p-4">
-                    <Calendar />
+                    <Calendar room={room} />
                 </Paper>
+                <Panel
+                    title={selectedItem ? 'Chỉnh sửa lịch chiếu phim' : 'Thêm lịch chiếu phim'}
+                    open={openPanel}
+                    onClose={handleClose}
+                    buttons={panelButtons}
+                >
+                    {/* <FoodForm ref={formRef} item={selectedItem} reloadTable={reloadTable} /> */}
+                </Panel>
             </div>
         </Container>
     );
