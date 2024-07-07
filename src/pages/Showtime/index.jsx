@@ -6,6 +6,7 @@ import RoomPicker from '~/components/RoomPicker';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useRef, useState } from 'react';
+import ShowtimeForm from './ShowtimeForm';
 // import { emitter } from '~/utils';
 // import { toast } from 'react-toastify';
 // import api from '~/config/api';
@@ -71,11 +72,13 @@ const Showtime = () => {
     // };
     return (
         <Container className="py-8">
-            <div className='flex justify-between items-center'>
+            <div className="flex items-center justify-between">
                 <h1 className="mb-4 text-3xl font-bold">Lịch chiếu phim</h1>
-                <Button onClick={() => handleOpen()} className='h-10'>Add</Button>
+                <Button onClick={() => handleOpen()} className="h-10">
+                    Add
+                </Button>
             </div>
-            <div className="mb-10 flex flex-col gap-6">
+            <div className="flex flex-col gap-6 mb-10">
                 <TheaterPicker
                     {...register('theater')}
                     error={!!errors.theater}
@@ -89,7 +92,7 @@ const Showtime = () => {
                     helperText={errors.room?.message}
                     defaultValue={room?._id}
                 />
-                <Paper className="mt-6 p-4">
+                <Paper className="p-4 mt-6">
                     <Calendar room={room} />
                 </Paper>
                 <Panel
@@ -98,7 +101,7 @@ const Showtime = () => {
                     onClose={handleClose}
                     buttons={panelButtons}
                 >
-                    {/* <FoodForm ref={formRef} item={selectedItem} reloadTable={reloadTable} /> */}
+                    <ShowtimeForm />
                 </Panel>
             </div>
         </Container>
