@@ -8,7 +8,9 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useRef, useState } from 'react';
 import ShowtimeForm from './ShowtimeForm';
 import useSWR from 'swr';
-import { fetcher } from '~/config/api';
+import api, { fetcher } from '~/config/api';
+import { toast } from 'react-toastify';
+import { constants, emitter } from '~/utils';
 
 const schema = yup.object().shape({
     theater: yup.string().required('Vui lòng chọn rạp chiếu'),
@@ -63,10 +65,13 @@ const Showtime = () => {
             onClick: handleClose,
         },
         {
-            text: 'Xóa',
+            text: 'Xóa lịch chiếu',
             color: 'secondary',
             variant: 'outlined',
             hide: !selectedItem,
+            onClick: () => {
+                handleDelete(selectedItem);
+            },
         },
         {
             text: 'Lưu',
@@ -79,6 +84,23 @@ const Showtime = () => {
     const reloadCalendar = () => {
         mutate();
         setOpenPanel(false);
+    };
+
+    const handleDelete = (selectedItem) => {
+        const caller = () => {
+            api.delete(`/showtimes/${selectedItem._id}`)
+                .then((res) => {
+                    toast.success(res.message);
+                    reloadCalendar();
+                })
+                .catch((err) => err.data?.message || constants.sthWentWrong);
+        };
+
+        emitter.confirm(
+            'Xoá lịch chiếu',
+            `Bạn có chắc muốn xoá lịch chiếu phim ${selectedItem.movieId.title}?`,
+            caller,
+        );
     };
 
     return (

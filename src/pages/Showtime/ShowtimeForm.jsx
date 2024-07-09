@@ -94,18 +94,13 @@ const ShowtimeForm = forwardRef(({ item, start, theater, room, reloadCalendar },
                     <TextField
                         {...register('normal')}
                         id="outlined-basic"
-                        label="Normal Seat Price"
+                        label="Giá ghế thường"
                         variant="outlined"
                         error={!!errors.normal}
                         helperText={errors.normal?.message}
                     />
-                    <TextField {...register('vip')} id="outlined-basic" label="Vip Seat Price" variant="outlined" />
-                    <TextField
-                        {...register('couple')}
-                        id="outlined-basic"
-                        label="Couple seat price"
-                        variant="outlined"
-                    />
+                    <TextField {...register('vip')} id="outlined-basic" label="Giá ghế VIP" variant="outlined" />
+                    <TextField {...register('couple')} id="outlined-basic" label="Giá ghế đôi" variant="outlined" />
                 </div>
             </div>
         </form>
