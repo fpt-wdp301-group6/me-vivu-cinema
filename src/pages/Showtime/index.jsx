@@ -1,4 +1,4 @@
-import { Button, Container, Paper } from '@mui/material';
+import { Container, Paper } from '@mui/material';
 import { Panel, TheaterPicker } from '~/components';
 import * as yup from 'yup';
 import Calendar from './Calendar';
@@ -7,14 +7,8 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useRef, useState } from 'react';
 import ShowtimeForm from './ShowtimeForm';
-// import { emitter } from '~/utils';
-// import { toast } from 'react-toastify';
-// import api from '~/config/api';
-
-// import { constants, emitter } from '~/utils';
-// import api from '~/config/api';
-// import { toast } from 'react-toastify';
-// import RoomForm from './RoomForm';
+import useSWR from 'swr';
+import { fetcher } from '~/config/api';
 
 const schema = yup.object().shape({
     theater: yup.string().required('Vui lòng chọn rạp chiếu'),
@@ -32,20 +26,35 @@ const Showtime = () => {
     // States
     const [selectedItem, setSelectedItem] = useState();
     const [openPanel, setOpenPanel] = useState(false);
-
+    const [addedShowtimeStartAt, setAddedShowtimeStartAt] = useState();
     // Refs
     const formRef = useRef();
-
     const theater = watch('theater');
     const room = watch('room');
+
+    const { data: showtimes, mutate } = useSWR(`/showtimes/${room}/listbyroom`, fetcher, {
+        revalidateIfStale: false,
+        revalidateOnFocus: false,
+        revalidateOnReconnect: false,
+    });
+
     // Actions
-    const handleOpen = (item) => {
-        setSelectedItem(item);
+    const handleOpenAddPanel = (start) => {
         setOpenPanel(true);
+        setAddedShowtimeStartAt(start);
     };
+
     const handleClose = () => {
         setOpenPanel(false);
+        setSelectedItem(null);
+        setAddedShowtimeStartAt(null);
     };
+
+    const handleOpenEditPanel = (showtime) => {
+        setOpenPanel(true);
+        setSelectedItem(showtime);
+    };
+
     const panelButtons = [
         {
             text: 'Hủy',
@@ -54,29 +63,28 @@ const Showtime = () => {
             onClick: handleClose,
         },
         {
+            text: 'Xóa',
+            color: 'secondary',
+            variant: 'outlined',
+            hide: !selectedItem,
+        },
+        {
             text: 'Lưu',
-            onClick: () => formRef.current.submit(),
+            onClick: () => {
+                formRef.current.submit();
+            },
         },
     ];
 
-    // const onDelete = (event, item) => {
-    //     const caller = () => {
-    //         api.delete(`/foods/${item._id}`)
-    //             .then((res) => {
-    //                 toast.success(res.message);
-    //             })
-    //             .catch((err) => err.data?.message || constants.sthWentWrong);
-    //     };
+    const reloadCalendar = () => {
+        mutate();
+        setOpenPanel(false);
+    };
 
-    //     emitter.confirm('Xoá thức ăn/thức uống', `Bạn có chắc muốn xoá ${item.name}?`, caller);
-    // };
     return (
         <Container className="py-8">
             <div className="flex items-center justify-between">
                 <h1 className="mb-4 text-3xl font-bold">Lịch chiếu phim</h1>
-                <Button onClick={() => handleOpen()} className="h-10">
-                    Add
-                </Button>
             </div>
             <div className="flex flex-col gap-6 mb-10">
                 <TheaterPicker
@@ -93,7 +101,12 @@ const Showtime = () => {
                     defaultValue={room?._id}
                 />
                 <Paper className="p-4 mt-6">
-                    <Calendar room={room} />
+                    <Calendar
+                        showtimes={showtimes}
+                        onSelect={handleOpenAddPanel}
+                        onEventClick={handleOpenEditPanel}
+                        room={room}
+                    />
                 </Paper>
                 <Panel
                     title={selectedItem ? 'Chỉnh sửa lịch chiếu phim' : 'Thêm lịch chiếu phim'}
@@ -101,7 +114,14 @@ const Showtime = () => {
                     onClose={handleClose}
                     buttons={panelButtons}
                 >
-                    <ShowtimeForm />
+                    <ShowtimeForm
+                        theater={theater}
+                        room={room}
+                        ref={formRef}
+                        start={addedShowtimeStartAt}
+                        item={selectedItem}
+                        reloadCalendar={reloadCalendar}
+                    />
                 </Panel>
             </div>
         </Container>

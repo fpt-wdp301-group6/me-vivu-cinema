@@ -1,21 +1,16 @@
 import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import useSWR from 'swr';
-import { fetcher } from '~/config/api';
+import { toast } from 'react-toastify';
 
-function Calendar({ room }) {
-    const { data: showtimes } = useSWR(`/showtimes/${room}/listbyroom`, fetcher, {
-        revalidateIfStale: false,
-        revalidateOnFocus: false,
-        revalidateOnReconnect: false,
-    });
+function Calendar({ showtimes, room, onSelect, onEventClick }) {
     let movies = [];
     if (showtimes) {
         movies = showtimes.data?.map((showtime) => ({
             title: showtime.movieId.title,
-            start: showtime.startAt.split('.')[0],
-            end: showtime.endAt.split('.')[0],
+            start: showtime.startAt,
+            end: showtime.endAt,
+            showtime: showtime,
         }));
     }
 
@@ -26,8 +21,16 @@ function Calendar({ room }) {
             weekends={true}
             events={movies}
             selectable
-            select={(e) => console.log(e)}
-            eventClick={(e) => console.log(e)}
+            select={(e) => {
+                if (room) {
+                    onSelect(e.start);
+                } else {
+                    toast.warning('Vui lòng chọn rạp và phòng chiếu trước!');
+                }
+            }}
+            eventClick={(e) => {
+                onEventClick(e.event.extendedProps.showtime);
+            }}
         />
     );
 }
