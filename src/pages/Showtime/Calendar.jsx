@@ -7,7 +7,7 @@ function Calendar({ showtimes, room, onSelect, onEventClick }) {
     let movies = [];
     if (showtimes) {
         movies = showtimes.data?.map((showtime) => ({
-            title: showtime.movieId.title,
+            title: showtime.movie.title,
             start: showtime.startAt,
             end: showtime.endAt,
             showtime: showtime,

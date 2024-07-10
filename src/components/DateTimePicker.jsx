@@ -26,6 +26,8 @@ const DateTimePicker = forwardRef(({ error, helperText, name, onChange, onBlur, 
                 defaultValue={moment(defaultValue)}
                 onChange={handleChange}
                 ref={ref}
+                minDateTime={moment().add(2, 'hours')}
+                ampm={false}
             />
             {helperText && <FormHelperText>{helperText}</FormHelperText>}
         </FormControl>

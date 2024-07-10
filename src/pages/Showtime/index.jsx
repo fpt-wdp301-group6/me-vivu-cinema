@@ -65,13 +65,11 @@ const Showtime = () => {
             onClick: handleClose,
         },
         {
-            text: 'Xóa lịch chiếu',
+            text: 'Xóa',
             color: 'secondary',
             variant: 'outlined',
             hide: !selectedItem,
-            onClick: () => {
-                handleDelete(selectedItem);
-            },
+            onClick: () => handleDelete(selectedItem),
         },
         {
             text: 'Lưu',

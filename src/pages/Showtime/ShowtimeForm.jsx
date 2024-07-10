@@ -7,9 +7,13 @@ import { forwardRef, useEffect, useImperativeHandle } from 'react';
 import api from '~/config/api';
 import { toast } from 'react-toastify';
 import { constants } from '~/utils';
+import moment from 'moment';
 
 const schema = yup.object().shape({
-    startAt: yup.date().typeError('Vui lòng chọn thời gian khởi chiếu'),
+    startAt: yup
+        .date()
+        .typeError('Vui lòng chọn thời gian khởi chiếu')
+        .min(moment().add(2, 'hours').toDate(), 'Thời gian khởi chiếu phải sau thời điểm hiện tại ít nhất 2 tiếng'),
     movie: yup.string().required('Vui lòng chọn phim'),
     normal: yup.number().required('Vui lòng nhập giá cho ghế loại thường').typeError('Giá phải là số'),
     vip: yup.number(),
@@ -61,7 +65,7 @@ const ShowtimeForm = forwardRef(({ item, start, theater, room, reloadCalendar },
 
     useEffect(() => {
         const defaultValues = {
-            movie: item?.movieId.id || '',
+            movie: item?.movie.id || '',
             startAt: item?.startAt || start || new Date(),
             normal: item?.price.normal || 0,
             vip: item?.price.vip || 0,
@@ -80,7 +84,7 @@ const ShowtimeForm = forwardRef(({ item, start, theater, room, reloadCalendar },
                 {...register('movie')}
                 error={!!errors.movie}
                 helperText={errors.movie?.message}
-                defaultValue={item?.movieId.id}
+                defaultValue={item?.movie.id}
             />
             <DateTimePicker
                 fullWidth
