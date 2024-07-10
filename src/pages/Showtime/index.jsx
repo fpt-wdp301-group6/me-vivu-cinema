@@ -34,7 +34,7 @@ const Showtime = () => {
     const theater = watch('theater');
     const room = watch('room');
 
-    const { data: showtimes, mutate } = useSWR(`/showtimes/${room}/listbyroom`, fetcher, {
+    const { data: showtimes, mutate } = useSWR(`/showtimes/${room}/listbyroom`, room ? fetcher : null, {
         revalidateIfStale: false,
         revalidateOnFocus: false,
         revalidateOnReconnect: false,

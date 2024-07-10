@@ -29,7 +29,7 @@ const SeatMap = () => {
 
     const navigate = useNavigate();
 
-    const { data, mutate } = useSWR(`/rooms/${roomId}/seats`, fetcher, {
+    const { data, mutate } = useSWR(`/rooms/${roomId}/seats`, roomId ? fetcher : null, {
         revalidateIfStale: false,
         revalidateOnFocus: false,
         revalidateOnReconnect: false,

@@ -18,7 +18,7 @@ const RoomPicker = forwardRef(
         },
         ref,
     ) => {
-        const { data: rooms } = useSWR(`/rooms/${theater}`, fetcher, {
+        const { data: rooms } = useSWR(`/rooms/${theater}`, theater ? fetcher : null, {
             revalidateIfStale: false,
             revalidateOnFocus: false,
             revalidateOnReconnect: false,

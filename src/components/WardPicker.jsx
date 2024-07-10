@@ -18,7 +18,7 @@ const WardPicker = forwardRef(
         },
         ref,
     ) => {
-        const { data } = useSWR(`/address/wards?sort=name&parent_code=${district}`, fetcher, {
+        const { data } = useSWR(`/address/wards?sort=name&parent_code=${district}`, district ? fetcher : null, {
             revalidateIfStale: false,
             revalidateOnFocus: false,
             revalidateOnReconnect: false,
