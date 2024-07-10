@@ -28,11 +28,17 @@ const Panel = ({
                 </div>
                 {buttons && (
                     <div className="flex items-center justify-end gap-2 p-4 border-t">
-                        {buttons.map((button, index) => (
-                            <Button size="large" key={button.id || index} {...button}>
-                                {button.text}
-                            </Button>
-                        ))}
+                        {buttons
+                            .filter((button) => !button.hide)
+                            .map((button, index) => {
+                                const { id, hide, ...props } = button;
+
+                                return (
+                                    <Button size="large" key={id || index} {...props}>
+                                        {button.text}
+                                    </Button>
+                                );
+                            })}
                     </div>
                 )}
             </div>
