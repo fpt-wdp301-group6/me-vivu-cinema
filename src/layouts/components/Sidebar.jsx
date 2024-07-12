@@ -8,6 +8,7 @@ import TheatersIcon from '@mui/icons-material/Theaters';
 import FastfoodIcon from '@mui/icons-material/Fastfood';
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import IcecreamIcon from '@mui/icons-material/Icecream';
 
 const Sidebar = () => {
     return (
@@ -45,12 +46,17 @@ const NAV_LISTS = [
             {
                 icon: <TheatersIcon />,
                 text: 'Rạp chiếu phim',
-                href: config.routes.theater,
+                href: config.routes.theater.base,
             },
             {
                 icon: <MeetingRoomIcon />,
                 text: 'Phòng chiếu',
                 href: config.routes.room.base,
+            },
+            {
+                icon: <IcecreamIcon />,
+                text: 'Đồ ăn theo rạp',
+                href: config.routes.theater.food,
             },
             {
                 icon: <FastfoodIcon />,
