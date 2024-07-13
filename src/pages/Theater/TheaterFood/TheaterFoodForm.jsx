@@ -22,7 +22,9 @@ const TheaterFoodForm = ({ columns, theater, reloadTable }) => {
         <div className="flex items-center justify-center w-full h-full pointer-events-none">
             <Paper className="p-5 pointer-events-auto min-w-96">
                 <h3 className="mb-6 text-xl font-semibold">Thêm bắp nước vào rạp</h3>
-                <Table columns={columns} url="/foods" onEdit={handleAdd} />
+                <div className="overflow-auto h-[500px]">
+                    <Table columns={columns} url="/foods" onEdit={handleAdd} />
+                </div>
             </Paper>
         </div>
     );
