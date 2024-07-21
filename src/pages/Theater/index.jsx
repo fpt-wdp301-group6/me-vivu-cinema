@@ -5,6 +5,8 @@ import TheaterForm from './TheaterForm';
 import { constants, emitter } from '~/utils';
 import api from '~/config/api';
 import { toast } from 'react-toastify';
+import { Link } from 'react-router-dom';
+import config from '~/config';
 
 const TheaterList = () => {
     const [openPanel, setOpenPanel] = useState(false);
@@ -39,6 +41,14 @@ const TheaterList = () => {
             color: 'secondary',
             variant: 'outlined',
             onClick: handleClose,
+        },
+        {
+            text: 'Phòng chiếu',
+            color: 'secondary',
+            variant: 'outlined',
+            component: Link,
+            hide: !selectedItem,
+            to: `${config.routes.room.base}?room=${selectedItem?._id}`,
         },
         {
             text: 'Lưu',

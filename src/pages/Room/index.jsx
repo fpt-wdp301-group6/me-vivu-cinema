@@ -6,12 +6,13 @@ import { constants, emitter } from '~/utils';
 import api from '~/config/api';
 import { toast } from 'react-toastify';
 import RoomForm from './RoomForm';
+import { useSearchQuery } from '~/hooks';
 
 const Room = () => {
+    const query = useSearchQuery();
     const [openPanel, setOpenPanel] = useState(false);
     const [selectedItem, setSelectedItem] = useState();
-    const [isTheaterSelected, setIsTheaterSelected] = useState(false);
-    const [theaterId, setTheaterId] = useState('');
+    const [theaterId, setTheaterId] = useState(query.get('room'));
     const formRef = useRef();
     const tableRef = useRef();
 
@@ -60,7 +61,6 @@ const Room = () => {
 
     const handleOnChange = (e) => {
         setTheaterId(e.target.value);
-        setIsTheaterSelected(true);
     };
 
     const onDelete = (event, item) => {
@@ -80,9 +80,9 @@ const Room = () => {
         <Container className="py-8">
             <h1 className="mb-4 text-3xl font-bold">Danh sách phòng chiếu</h1>
             <div className="mb-10">
-                <TheaterPicker onChange={handleOnChange} />
+                <TheaterPicker value={theaterId} onChange={handleOnChange} />
             </div>
-            {isTheaterSelected && (
+            {theaterId && (
                 <Table
                     ref={tableRef}
                     columns={columns}

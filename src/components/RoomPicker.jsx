@@ -1,4 +1,4 @@
-import { forwardRef, useMemo, useState } from 'react';
+import { forwardRef, useMemo } from 'react';
 import { Autocomplete, TextField } from '@mui/material';
 import useSWR from 'swr';
 import { fetcher } from '~/config/api';
@@ -7,6 +7,7 @@ const RoomPicker = forwardRef(
     (
         {
             theater,
+            value,
             onChange,
             onBlur,
             error,
@@ -14,7 +15,7 @@ const RoomPicker = forwardRef(
             name,
             label = 'Lựa chọn phòng chiếu',
             fullWidth = false,
-            defaultValue = null,
+            defaultValue,
         },
         ref,
     ) => {
@@ -23,14 +24,12 @@ const RoomPicker = forwardRef(
             revalidateOnFocus: false,
             revalidateOnReconnect: false,
         });
-        const [value, setValue] = useState(defaultValue);
         const selectedValue = useMemo(() => {
-            const result = rooms?.data?.find((room) => room._id === value);
+            const result = rooms?.data?.find((room) => room._id === value || defaultValue);
             return result || null;
-        }, [rooms?.data, value]);
+        }, [rooms?.data, value, defaultValue]);
 
         const handleChange = (event, newValue) => {
-            setValue(newValue?._id || '');
             if (onChange) {
                 const mockEvent = {
                     ...event,
@@ -64,7 +63,8 @@ const RoomPicker = forwardRef(
                 id="theater-picker"
                 options={rooms?.data || []}
                 fullWidth={fullWidth}
-                value={selectedValue}
+                value={value && selectedValue}
+                defaultValue={selectedValue}
                 onChange={handleChange}
                 onBlur={handleBlur}
                 ref={ref}

@@ -1,4 +1,4 @@
-import { forwardRef, useMemo, useState } from 'react';
+import { forwardRef, useMemo } from 'react';
 import { Autocomplete, TextField } from '@mui/material';
 import useSWR from 'swr';
 import { fetcher } from '~/config/api';
@@ -6,6 +6,7 @@ import { fetcher } from '~/config/api';
 const TheaterPicker = forwardRef(
     (
         {
+            value,
             onChange,
             onBlur,
             error,
@@ -18,14 +19,12 @@ const TheaterPicker = forwardRef(
         ref,
     ) => {
         const { data: theaters } = useSWR('/theaters/all', fetcher);
-        const [value, setValue] = useState(defaultValue);
         const selectedValue = useMemo(() => {
-            const result = theaters?.data?.find((theater) => theater._id === value);
+            const result = theaters?.data?.find((theater) => theater._id === value || defaultValue);
             return result || null;
-        }, [theaters?.data, value]);
+        }, [theaters?.data, value, defaultValue]);
 
         const handleChange = (event, newValue) => {
-            setValue(newValue?._id || '');
             if (onChange) {
                 const mockEvent = {
                     ...event,
@@ -59,7 +58,8 @@ const TheaterPicker = forwardRef(
                 id="theater-picker"
                 options={theaters?.data || []}
                 fullWidth={fullWidth}
-                value={selectedValue}
+                value={value && selectedValue}
+                defaultChecked={selectedValue}
                 onChange={handleChange}
                 onBlur={handleBlur}
                 ref={ref}

@@ -1,10 +1,7 @@
 import { Container, Paper } from '@mui/material';
 import { Panel, TheaterPicker } from '~/components';
-import * as yup from 'yup';
 import Calendar from './Calendar';
 import RoomPicker from '~/components/RoomPicker';
-import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
 import { useRef, useState } from 'react';
 import ShowtimeForm from './ShowtimeForm';
 import useSWR from 'swr';
@@ -12,27 +9,15 @@ import api, { fetcher } from '~/config/api';
 import { toast } from 'react-toastify';
 import { constants, emitter } from '~/utils';
 
-const schema = yup.object().shape({
-    theater: yup.string().required('Vui lòng chọn rạp chiếu'),
-    room: yup.string().required('Vui lòng chọn phòng chiếu'),
-});
-
 const Showtime = () => {
-    const {
-        register,
-        watch,
-        formState: { errors },
-    } = useForm({
-        resolver: yupResolver(schema),
-    });
     // States
     const [selectedItem, setSelectedItem] = useState();
     const [openPanel, setOpenPanel] = useState(false);
     const [addedShowtimeStartAt, setAddedShowtimeStartAt] = useState();
+    const [theater, setTheater] = useState();
+    const [room, setRoom] = useState();
     // Refs
     const formRef = useRef();
-    const theater = watch('theater');
-    const room = watch('room');
 
     const { data: showtimes, mutate } = useSWR(`/showtimes/${room}/listbyroom`, room ? fetcher : null, {
         revalidateIfStale: false,
@@ -107,19 +92,8 @@ const Showtime = () => {
                 <h1 className="mb-4 text-3xl font-bold">Lịch chiếu phim</h1>
             </div>
             <div className="flex flex-col gap-6 mb-10">
-                <TheaterPicker
-                    {...register('theater')}
-                    error={!!errors.theater}
-                    helperText={errors.theater?.message}
-                    defaultValue={theater?._id}
-                />
-                <RoomPicker
-                    theater={theater}
-                    {...register('room')}
-                    error={!!errors.room}
-                    helperText={errors.room?.message}
-                    defaultValue={room?._id}
-                />
+                <TheaterPicker value={theater} onChange={(e) => setTheater(e.target.value)} />
+                <RoomPicker theater={theater} value={room} onChange={(e) => setRoom(e.target.value)} />
                 <Paper className="p-4 mt-6">
                     <Calendar
                         showtimes={showtimes}
