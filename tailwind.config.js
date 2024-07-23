@@ -34,6 +34,10 @@ module.exports = {
             aspectRatio: {
                 poster: '2 / 3',
             },
+            flex: {
+                2: '2 2 0%',
+                3: '3 3 0%',
+            },
         },
     },
     plugins: [],
